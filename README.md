@@ -15,7 +15,6 @@ For now Scrappy can't be installed by using various package managers on Linux.
 Clone repository:
 ```
 git clone https://github.com/khimchuk/scrappy.git
-
 ```
 
 Install Rust:
