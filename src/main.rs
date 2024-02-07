@@ -1,7 +1,12 @@
 use std::env;
 use std::process;
+use rusqlite::{Connection, Result};
 
-fn main() {
+fn main() -> Result<()> {
+    let conn = Connection::open("scrappy.db")?;
+
+    create_table(conn);
+
     let args: Vec<String> = env::args().collect();
 
     let config = Config::new(&args).unwrap_or_else(|error| {
@@ -10,6 +15,8 @@ fn main() {
     });
 
     run(config);
+
+    Ok(())
 }
 
 fn run(config: Config) {
@@ -79,4 +86,14 @@ impl Config {
             return Err("No arguments found");
         }
     }
+}
+
+fn create_table(connection: Connection) {
+    let _ = connection.execute(
+        "CREATE TABLE IF NOT EXISTS passwords (
+            name TEXT,
+            password TEXT
+        )",
+        (),
+    );
 }
