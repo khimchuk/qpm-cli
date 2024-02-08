@@ -5,7 +5,13 @@ use rusqlite::{Connection, Result};
 fn main() -> Result<()> {
     let conn = Connection::open("scrappy.db")?;
 
-    create_table(conn);
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS passwords (
+            name TEXT,
+            password TEXT
+        )",
+        (),
+    )?;
 
     let args: Vec<String> = env::args().collect();
 
@@ -14,28 +20,26 @@ fn main() -> Result<()> {
         process::exit(1);
     });
 
-    run(config);
+    run(config, conn);
 
     Ok(())
 }
 
-fn run(config: Config) {
-    if (config.operation == "--help" || config.operation == "-h") && config.input == None {
-        help();
-    } else if config.operation == "--encryption" || config.operation == "-e" {
-        println!("{}", encryption(config.input.unwrap()));
-    } else if config.operation == "--decryption" || config.operation == "-d" {
-        println!("{}", decryption(config.input.unwrap()));
-    } else {
-        println!("Problem parsing arguments: Unknow argument");
-        process::exit(1);
+fn run(config: Config, _conn: Connection) {
+    match config.operation.as_str() {
+        "--help" | "-h" if config.input == None => help(),
+        "--encryption" | "-e" => println!("{}", encryption(config.input.unwrap())),
+        "--decryption" | "-d" => println!("{}", decryption(config.input.unwrap())),
+        _ => println!("Problem parsing arguments: Unknow arguments")
     }
+
+    process::exit(1);
 }
 
 fn help() {
     println!("Usage:
   scrappy [OPTION] - for help command
-  scrappy [OPTION] [ARGUMENT] - for other commands
+  scrappy [OPTION] [ARGUMENTS] - for other commands
 
   -h, --help              help message
   -e, --encryption        encrypt message
@@ -86,14 +90,4 @@ impl Config {
             return Err("No arguments found");
         }
     }
-}
-
-fn create_table(connection: Connection) {
-    let _ = connection.execute(
-        "CREATE TABLE IF NOT EXISTS passwords (
-            name TEXT,
-            password TEXT
-        )",
-        (),
-    );
 }
