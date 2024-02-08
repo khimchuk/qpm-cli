@@ -28,8 +28,6 @@ fn main() -> Result<()> {
 fn run(config: Config, _conn: Connection) {
     match config.operation.as_str() {
         "--help" | "-h" if config.input == None => help(),
-        "--encryption" | "-e" => println!("{}", encryption(config.input.unwrap())),
-        "--decryption" | "-d" => println!("{}", decryption(config.input.unwrap())),
         _ => println!("Problem parsing arguments: Unknow arguments")
     }
 
@@ -47,22 +45,23 @@ fn help() {
 ");
 }
 
-fn encryption(message: String) -> String {
-    let mut result: String = String::new();
+fn encryption(password: String) -> Vec<String> {
+    let mut result: Vec<String> = Vec::new();
 
-    for element in message.chars().rev(){
-        result.push(element);
+    for byte in password.as_bytes() {
+        let to_add = format!("{:b}", byte);
+        result.push(to_add);
     }
 
     return result;
-    
 }
 
-fn decryption(message: String) -> String {
+fn decryption(to_encrypt: Vec<String>) -> String {
     let mut result: String = String::new();
 
-    for element in message.chars().rev() {
-        result.push(element);
+    for byte in to_encrypt {
+        let to_add = u8::from_str_radix(byte.as_str(), 2).unwrap();
+        result.push(to_add as char);
     }
 
     return result;
