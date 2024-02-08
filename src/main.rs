@@ -7,6 +7,7 @@ fn main() -> Result<()> {
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS passwords (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             password TEXT
         )",
@@ -45,7 +46,7 @@ fn help() {
 ");
 }
 
-fn encryption(password: String) -> Vec<String> {
+fn _encryption(password: String) -> Vec<String> {
     let mut result: Vec<String> = Vec::new();
 
     for byte in password.as_bytes() {
@@ -56,7 +57,7 @@ fn encryption(password: String) -> Vec<String> {
     return result;
 }
 
-fn decryption(to_encrypt: Vec<String>) -> String {
+fn _decryption(to_encrypt: Vec<String>) -> String {
     let mut result: String = String::new();
 
     for byte in to_encrypt {
@@ -89,4 +90,22 @@ impl Config {
             return Err("No arguments found");
         }
     }
+}
+
+fn _get_all(conn: Connection) -> Result<(), rusqlite::Error>{
+    let mut stmt = conn.prepare("SELECT id, name FROM passwords")?;
+    let rows = stmt.query_map([], |row| {
+        Ok((row.get(0)?, row.get(1)?))
+    })?;
+
+    println!("+------+------------------------+");
+    println!("|  id  |          name          |");
+    println!("+------+------------------------+");
+    for row in rows {
+        let (id, name): (i32, String) = row?;
+        println!("|  {:<2}  | {:<22} |", id, name);
+    }
+    println!("+------+------------------------+");
+
+    Ok(())
 }
