@@ -140,9 +140,9 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
     let id = rpassword::prompt_password("Choose id: ").unwrap();
 
     let mut cursor = conn.prepare("SELECT password FROM passwords WHERE id=?")?;
-        let rows = cursor.query_map([id], |row| {
-            Ok(row.get(0)?)
-        })?;
+    let rows = cursor.query_map([id], |row| {
+        Ok(row.get(0)?)
+    })?;
     
     let mut password = String::new();
 
