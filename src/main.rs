@@ -1,4 +1,4 @@
-use std::env;
+use std::{char, env};
 use std::path::Path;
 use std::process;
 use rusqlite::{Connection, Result};
@@ -65,23 +65,24 @@ fn help() {
 ");
 }
 
-fn _encryption(password: String) -> Vec<String> {
-    let mut result: Vec<String> = Vec::new();
+fn _encryption(password: String) -> String {
+    let mut result: String = String::new();
 
-    for byte in password.as_bytes() {
-        let to_add = format!("{:b}", byte);
-        result.push(to_add);
+    for byte in password.chars() {
+        let binary_repr = format!("{:08b}", byte as u8);
+        result.push_str(&binary_repr);
     }
 
     return result;
 }
 
-fn _decryption(to_encrypt: Vec<String>) -> String {
+fn _decryption(to_encrypt: String) -> String {
     let mut result: String = String::new();
 
-    for byte in to_encrypt {
-        let to_add = u8::from_str_radix(byte.as_str(), 2).unwrap();
-        result.push(to_add as char);
+    for chunk in to_encrypt.chars().collect::<Vec<_>>().chunks(8) {
+        let byte: String = chunk.iter().collect();
+        let decrypted_byte: u8 = u8::from_str_radix(&byte, 2).unwrap();
+        result.push(decrypted_byte as char);
     }
 
     return result;
