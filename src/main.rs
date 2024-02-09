@@ -64,7 +64,7 @@ fn help(argument: Option<String>) {
 "Usage:
     scrappy [OPTION]
         or
-    scrappy [OPTION] [ARGUMENTS]
+    scrappy [OPTION] [ARGUMENT]
 
     -h, --help              help message
     -s, --set               set password 
