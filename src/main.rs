@@ -1,3 +1,4 @@
+use std::ops::Div;
 use std::env;
 use std::path::Path;
 use std::process;
@@ -48,10 +49,13 @@ Or reinstall Scrappy by running the install.sh script");
 fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
         "--help" | "-h" if config.input == None => help(),
+        "--get" | "-g" => get(conn, config.input.unwrap()).unwrap(),
+        "--set" | "-s" => set(conn, config.input.unwrap()).unwrap(),
+        "--get-all" | "-ga" if config.input == None => get_all(conn).unwrap(),
         _ => println!("Problem parsing arguments: Unknow arguments")
     }
 
-    process::exit(1);
+    process::exit(0);
 }
 
 fn help() {
@@ -130,9 +134,25 @@ fn get_all(conn: Connection) -> Result<(), rusqlite::Error>{
     Ok(())
 }
 
-fn get(conn: Connection, id: &str) -> Result<(), rusqlite::Error> {
+fn get(conn: Connection, id: String) -> Result<(), rusqlite::Error> {
+    let secret = match rpassword::prompt_password("Secret: ") {
+       Ok(line) => {
+           if line.chars().count() != 0 {
+               line
+           } else {
+               println!("Canceled");
+               process::exit(1);
+           }
+       }
+       Err(_) => {
+           println!();
+           println!("Canceled");
+           process::exit(1);
+       }
+    };
+
     let mut cursor = conn.prepare("SELECT password FROM passwords WHERE id=?")?;
-    let rows = cursor.query_map([id.to_string()], |row| {
+    let rows = cursor.query_map([id], |row| {
         Ok(row.get(0)?)
     })?;
     
@@ -142,9 +162,90 @@ fn get(conn: Connection, id: &str) -> Result<(), rusqlite::Error> {
         (password) = row?;
     }
 
-    let decrypted_password = decryption(password);
+    let mut new_secret = String::new();
+ 
+    for _ in 0..(password.chars().count() / 8).div(secret.chars().count()) {
+        new_secret.push_str(secret.as_str());
+    }
 
-    println!("{}", decrypted_password);
+    new_secret.push_str(&secret[..(password.chars().count() / 8) % secret.chars().count()]);
+    
+    let mut new_password = String::new();
+
+    new_secret = encryption(new_secret);
+
+    for index in 0..password.chars().count() {
+        if new_secret.chars().nth(index).unwrap() != password.chars().nth(index).unwrap() {
+            new_password.push('1');
+        } else {
+            new_password.push('0');
+        } 
+    }
+
+    new_password = decryption(new_password);
+
+    println!("{}", new_password);
+
+    Ok(())
+}
+
+fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
+    let secret = match rpassword::prompt_password("Secret: ") {
+        Ok(line) => {
+            if line.chars().count() != 0 {
+                line
+            } else {
+                println!("Canceled");
+                process::exit(1);
+            }
+        }
+        Err(_) => {
+            println!();
+            println!("Canceled");
+            process::exit(1);
+        }
+    };
+
+    let mut password = match rpassword::prompt_password("Password: ") {
+        Ok(line) => {
+            if line.chars().count() != 0 {
+                line
+            } else {
+                println!("Canceled");
+                process::exit(1);
+            }
+        }
+        Err(_) => {
+            println!();
+            println!("Canceled");
+            process::exit(1);
+        }
+    };
+
+    let mut new_secret = String::new();
+
+    for _ in 0..password.chars().count().div(secret.chars().count()) {
+        new_secret.push_str(secret.as_str());
+    }
+
+    new_secret.push_str(&secret[..password.chars().count() % secret.chars().count()]);
+
+    new_secret = encryption(new_secret);
+    password = encryption(password);
+    
+    let mut new_password = String::new();
+    
+    for index in 0..password.chars().count() {
+        if new_secret.chars().nth(index).unwrap() != password.chars().nth(index).unwrap() {
+            new_password.push('1');
+        } else {
+            new_password.push('0');
+        } 
+    }
+
+    conn.execute("INSERT INTO passwords(name, password) VALUES(?1, ?2)",
+        (name, new_password),
+    )?;
 
     Ok(())
 }
