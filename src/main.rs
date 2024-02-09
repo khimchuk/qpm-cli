@@ -49,9 +49,9 @@ Or reinstall Scrappy by running the install.sh script");
 fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
         "--help" | "-h" if config.input == None => help(),
-        "--get" | "-g" => get(conn, config.input.unwrap()).unwrap(),
+        "--get" | "-g" => get(conn).unwrap(),
         "--set" | "-s" => set(conn, config.input.unwrap()).unwrap(),
-        "--get-all" | "-ga" if config.input == None => get_all(conn).unwrap(),
+        "--get-all" | "-ga" if config.input == None => get_all(&conn).unwrap(),
         _ => println!("Problem parsing arguments: Unknow arguments")
     }
 
@@ -116,7 +116,7 @@ impl Config {
     }
 }
 
-fn get_all(conn: Connection) -> Result<(), rusqlite::Error>{
+fn get_all(conn: &Connection) -> Result<(), rusqlite::Error>{
     let mut cursor = conn.prepare("SELECT id, name FROM passwords")?;
     let rows = cursor.query_map([], |row| {
         Ok((row.get(0)?, row.get(1)?))
@@ -134,7 +134,27 @@ fn get_all(conn: Connection) -> Result<(), rusqlite::Error>{
     Ok(())
 }
 
-fn get(conn: Connection, id: String) -> Result<(), rusqlite::Error> {
+fn get(conn: Connection) -> Result<(), rusqlite::Error> {
+    let _ = get_all(&conn);
+
+    let id = rpassword::prompt_password("Choose id: ").unwrap();
+
+    let mut cursor = conn.prepare("SELECT password FROM passwords WHERE id=?")?;
+        let rows = cursor.query_map([id], |row| {
+            Ok(row.get(0)?)
+        })?;
+    
+    let mut password = String::new();
+
+    for row in rows {
+        (password) = row?;
+    }
+
+    if password.len() == 0 {
+        println!("A password with this ID does not exist!");
+        process::exit(1);
+    }
+
     let secret = match rpassword::prompt_password("Secret: ") {
        Ok(line) => {
            if line.chars().count() != 0 {
@@ -150,17 +170,6 @@ fn get(conn: Connection, id: String) -> Result<(), rusqlite::Error> {
            process::exit(1);
        }
     };
-
-    let mut cursor = conn.prepare("SELECT password FROM passwords WHERE id=?")?;
-    let rows = cursor.query_map([id], |row| {
-        Ok(row.get(0)?)
-    })?;
-    
-    let mut password = String::new();
-
-    for row in rows {
-        (password) = row?;
-    }
 
     let mut new_secret = String::new();
  
