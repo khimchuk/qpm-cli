@@ -45,7 +45,7 @@ Or reinstall Scrappy by running the install.sh script");
     Ok(())
 }
 
-fn run(config: Config, _conn: Connection) {
+fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
         "--help" | "-h" if config.input == None => help(),
         _ => println!("Problem parsing arguments: Unknow arguments")
@@ -65,7 +65,7 @@ fn help() {
 ");
 }
 
-fn _encryption(password: String) -> String {
+fn encryption(password: String) -> String {
     let mut result: String = String::new();
 
     for byte in password.chars() {
@@ -76,7 +76,7 @@ fn _encryption(password: String) -> String {
     return result;
 }
 
-fn _decryption(to_encrypt: String) -> String {
+fn decryption(to_encrypt: String) -> String {
     let mut result: String = String::new();
 
     for chunk in to_encrypt.chars().collect::<Vec<_>>().chunks(8) {
@@ -112,9 +112,9 @@ impl Config {
     }
 }
 
-fn _get_all(conn: Connection) -> Result<(), rusqlite::Error>{
-    let mut stmt = conn.prepare("SELECT id, name FROM passwords")?;
-    let rows = stmt.query_map([], |row| {
+fn get_all(conn: Connection) -> Result<(), rusqlite::Error>{
+    let mut cursor = conn.prepare("SELECT id, name FROM passwords")?;
+    let rows = cursor.query_map([], |row| {
         Ok((row.get(0)?, row.get(1)?))
     })?;
 
@@ -126,6 +126,25 @@ fn _get_all(conn: Connection) -> Result<(), rusqlite::Error>{
         println!("|  {:<2}  | {:<22} |", id, name);
     }
     println!("+------+------------------------+");
+
+    Ok(())
+}
+
+fn get(conn: Connection, id: &str) -> Result<(), rusqlite::Error> {
+    let mut cursor = conn.prepare("SELECT password FROM passwords WHERE id=?")?;
+    let rows = cursor.query_map([id.to_string()], |row| {
+        Ok(row.get(0)?)
+    })?;
+    
+    let mut password = String::new();
+
+    for row in rows {
+        (password) = row?;
+    }
+
+    let decrypted_password = decryption(password);
+
+    println!("{}", decrypted_password);
 
     Ok(())
 }
