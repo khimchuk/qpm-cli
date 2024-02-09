@@ -1,4 +1,4 @@
-use std::{char, env};
+use std::env;
 use std::path::Path;
 use std::process;
 use rusqlite::{Connection, Result};
