@@ -48,25 +48,71 @@ Or reinstall Scrappy by running the install.sh script");
 
 fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
-        "--help" | "-h" if config.input == None => help(),
+        "--help" | "-h" => help(config.input),
         "--get" | "-g" => get(conn).unwrap(),
         "--set" | "-s" => set(conn, config.input.unwrap()).unwrap(),
-        "--get-all" | "-ga" if config.input == None => get_all(&conn).unwrap(),
+        "--all" | "-a" if config.input == None => get_all(&conn).unwrap(),
         _ => println!("Problem parsing arguments: Unknow arguments")
     }
 
     process::exit(0);
 }
 
-fn help() {
-    println!("Usage:
-  scrappy [OPTION] - for help command
-  scrappy [OPTION] [ARGUMENTS] - for other commands
+fn help(argument: Option<String>) {
+    if argument == None {
+            println!(
+"Usage:
+    scrappy [OPTION]
+        or
+    scrappy [OPTION] [ARGUMENTS]
 
-  -h, --help              help message
-  -e, --encryption        encrypt message
-  -d, --decryption        decrypt message
-");
+    -h, --help              help message
+    -s, --set               set password 
+    -g, --get               get password
+    -a, --all               get all apps names
+
+    Type for more information:
+        --> scrappy --help [OPTION]
+                or 
+            scrappy -h [OPTION]"
+);
+            process::exit(0);
+    }
+
+    match argument.unwrap().as_str() {
+        "--get" | "-g" => {
+            println!(
+"Usage:
+    scrappy --get
+        or 
+    scrappy -g"
+);
+        },
+        "--set" | "-s" => {
+            println!(
+"Usage:
+    scrappy --set [NAME]
+        or 
+    scrappy -s [NAME]"
+);
+        },
+        "--all" | "-a" => {
+            println!(
+"Usage:
+    scrappy --all
+        or 
+    scrappy -a"
+);
+        },
+        _ => {
+            println!(
+"Unknow argument! Try:
+    --> scrappy --help
+            or 
+        scrappy -h"
+);
+        }
+    }
 }
 
 fn encryption(password: String) -> String {
@@ -137,7 +183,11 @@ fn get_all(conn: &Connection) -> Result<(), rusqlite::Error>{
 fn get(conn: Connection) -> Result<(), rusqlite::Error> {
     let _ = get_all(&conn);
 
-    let id = rpassword::prompt_password("Choose id: ").unwrap();
+    let id = rpassword::prompt_password("Choose id: ").unwrap_or_else(|err| {
+        println!();
+        println!("Input error: {}", err);
+        process::exit(1);
+    });
 
     let mut cursor = conn.prepare("SELECT password FROM passwords WHERE id=?")?;
     let rows = cursor.query_map([id], |row| {
