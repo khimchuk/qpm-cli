@@ -1,9 +1,28 @@
 use std::env;
+use std::path::Path;
 use std::process;
 use rusqlite::{Connection, Result};
 
 fn main() -> Result<()> {
-    let conn = Connection::open("scrappy.db")?;
+    let user_home_dir = match home::home_dir() {
+        Some(path) => path,
+        None => {
+            println!("Can't open your home dir!");
+            process::exit(1);
+        }
+    };
+
+    let path_exists = Path::new(&user_home_dir.join(".scrappy_storage")).exists();
+    
+    if path_exists == false {
+        println!(
+"Oops! Looks like Scrappy can't find the storage directory. Try creating it using the command:
+    --> mkdir ~/.scrappy_storage 
+Or reinstall Scrappy by running the install.sh script");
+        process::exit(1);
+    }
+
+    let conn = Connection::open(user_home_dir.join(".scrappy_storage").join("scrappy.db"))?;
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS passwords (
