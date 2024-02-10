@@ -209,14 +209,29 @@ fn get_all(conn: &Connection) -> Result<(), rusqlite::Error>{
         Ok((row.get(0)?, row.get(1)?))
     })?;
 
-    println!("+------+------------------------+");
-    println!("|  id  |          name          |");
-    println!("+------+------------------------+");
+    println!("+-----+-------------------------+");
+    println!("| id: | name:                   |");
+    println!("+-----+-------------------------+");
     for row in rows {
         let (id, name): (i32, String) = row?;
-        println!("|  {:<2}  | {:<22} |", id, name);
+        if name.chars().count() > 23 {
+            println!("| {:<3} | {:<23} |", id, &name[0..23]);
+            let mut left = name.chars().count() - 23;
+            let mut pos = 23;
+            for _ in 0..(name.chars().count().div(23)) {
+                if left > 23 {
+                    println!("|     | {:<23} |", &name[pos..(pos + 23)]);
+                    left -= 23;
+                } else {
+                    println!("|     | {:<23} |", &name[pos..]);
+                }
+                pos += 23;
+            }
+        } else {
+            println!("| {:<3} | {:<23} |", id, name);
+        }
     }
-    println!("+------+------------------------+");
+    println!("+-----+-------------------------+");
 
     Ok(())
 }
