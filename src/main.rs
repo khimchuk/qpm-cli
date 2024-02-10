@@ -17,7 +17,7 @@ fn main() -> Result<()> {
     let storage_dir_exists = Path::new(&user_home_dir.join(".vold_storage")).exists();
     
     if !storage_dir_exists {
-        if let Err(err) = fs::create_dir_all(user_home_dir.join(".scrappy_storage")) {
+        if let Err(err) = fs::create_dir_all(user_home_dir.join(".vold_storage")) {
             println!("Can't create directory: {}", err);
             process::exit(1);
         }
