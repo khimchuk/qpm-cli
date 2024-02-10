@@ -65,6 +65,14 @@ fn run(config: Config, conn: Connection) {
                 set(conn, config.input.unwrap()).unwrap();
             }
         },
+        "--remove" | "-r" => {
+            if config.input != None {
+                println!("Problem parsing arguments: Too many arguments");
+                process::exit(1);
+            } else {
+                remove(conn).unwrap()
+            }
+        }
         "--all" | "-a" => {
             if config.input != None {
                 println!("Problem parsing arguments: Too many arguments");
@@ -93,6 +101,7 @@ fn help(argument: Option<String>) {
     -h, --help              help message
     -s, --set               set password 
     -g, --get               get password
+    -r, --remove            remove password
     -a, --all               get all apps names
 
     Type for more information:
@@ -118,6 +127,14 @@ fn help(argument: Option<String>) {
     scrappy --set [NAME]
         or 
     scrappy -s [NAME]"
+);
+        },
+        "--remove" | "-r" => {
+            println!(
+"Usage: 
+    scrappy --remove 
+        or 
+    scrappy -r"
 );
         },
         "--all" | "-a" => {
@@ -330,5 +347,25 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
         (name, new_password),
     )?;
 
+    Ok(())
+}
+
+fn remove(conn: Connection) -> Result<(), rusqlite::Error> {
+    let _ = get_all(&conn);
+
+    let id = rpassword::prompt_password("Choose id: ").unwrap_or_else(|err| {
+        println!();
+        println!("Input error: {}", err);
+        process::exit(1);
+    });
+
+    if let Ok(0) = conn.execute("DELETE FROM passwords WHERE id=?",
+        [id],
+    ) {
+        println!("A password with this ID does not exist!");
+        process::exit(1);
+    };
+    
+    println!("Success!");
     Ok(())
 }
