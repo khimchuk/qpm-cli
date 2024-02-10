@@ -387,11 +387,15 @@ fn remove(conn: Connection) -> Result<(), rusqlite::Error> {
     });
 
     if let Ok(0) = conn.execute("DELETE FROM passwords WHERE id=?",
-        [id],
+        [&id],
     ) {
         println!("A password with this ID does not exist!");
         process::exit(1);
     };
+
+    conn.execute("UPDATE passwords SET id = id - 1 WHERE id > ?",
+        [&id],
+    )?;
     
     println!("Success!");
     Ok(())
