@@ -78,7 +78,7 @@ fn run(config: Config, conn: Connection) {
                 println!("Problem parsing arguments: Too many arguments");
                 process::exit(1);
             } else {
-                get_all(&conn).unwrap()
+                get_all(&conn).unwrap();
             }
         },
         _ => {
@@ -203,7 +203,7 @@ impl Config {
     }
 }
 
-fn get_all(conn: &Connection) -> Result<(), rusqlite::Error>{
+fn get_all(conn: &Connection) -> Result<bool, rusqlite::Error>{
     let mut cursor = conn.prepare("SELECT id, name FROM passwords")?;
     let rows = cursor.query_map([], |row| {
         Ok((row.get(0)?, row.get(1)?))
@@ -212,6 +212,7 @@ fn get_all(conn: &Connection) -> Result<(), rusqlite::Error>{
     println!("+-----+-------------------------+");
     println!("| id: | name:                   |");
     println!("+-----+-------------------------+");
+    let mut empty = true;
     for row in rows {
         let (id, name): (i32, String) = row?;
         if name.chars().count() > 23 {
@@ -227,17 +228,26 @@ fn get_all(conn: &Connection) -> Result<(), rusqlite::Error>{
                 }
                 pos += 23;
             }
+            empty = false;
         } else {
             println!("| {:<3} | {:<23} |", id, name);
+            empty = false
         }
     }
+
+    if empty {
+        println!("|  E M P T Y    F O R    N O W  |");
+    }
+
     println!("+-----+-------------------------+");
 
-    Ok(())
+    Ok(empty)
 }
 
 fn get(conn: Connection) -> Result<(), rusqlite::Error> {
-    let _ = get_all(&conn);
+    if let Ok(true) = get_all(&conn) {
+        process::exit(0);
+    };
 
     let id = rpassword::prompt_password("Choose id: ").unwrap_or_else(|err| {
         println!();
@@ -366,7 +376,9 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
 }
 
 fn remove(conn: Connection) -> Result<(), rusqlite::Error> {
-    let _ = get_all(&conn);
+    if let Ok(true) = get_all(&conn) {
+        process::exit(0);
+    };
 
     let id = rpassword::prompt_password("Choose id: ").unwrap_or_else(|err| {
         println!();
