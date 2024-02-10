@@ -19,5 +19,5 @@ source $HOME/.cargo/env
 Install Vold:
 ```
 cd vold
-./install.sh 
+./vinst install 
 ```
