@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+
+MYPATH=$(pwd)
+
+if [ $# -eq 0 ]; then
+    echo "Problem parsing argument: No argument found"
+    echo "Try:"
+    echo ""
+    echo "  --> vinst help"
+    echo ""
+    exit 1
+fi
+
+key="$1"
+
+case $key in
+    help)
+        echo "Using:"
+        echo ""
+        echo "  vinst install           install Vold"
+        echo "  vinst uninstall         uninstall Vold"
+        echo ""
+        exit 0
+        ;;
+    install)
+        cargo build --release
+        cargo install --path $MYPATH
+        ;;
+    uninstall)
+        rm -rf $HOME/.vold_storage
+        cargo uninstall
+        ;;
+    *)
+        echo "Problem parsing argument: Unknow argument $1"
+        echo "Try:"
+        echo ""
+        echo "  --> vinst help"
+        echo ""
+        exit 1
+        ;;
+esac
