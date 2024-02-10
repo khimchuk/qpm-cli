@@ -65,20 +65,20 @@ fn run(config: Config, conn: Connection) {
                 set(conn, config.input.unwrap()).unwrap();
             }
         },
-        "--remove" | "-r" => {
+        "--delete" | "-d" => {
             if config.input != None {
                 println!("Problem parsing arguments: Too many arguments");
                 process::exit(1);
             } else {
-                remove(conn).unwrap()
+                delete(conn).unwrap()
             }
         }
-        "--all" | "-a" => {
+        "--list" | "-l" => {
             if config.input != None {
                 println!("Problem parsing arguments: Too many arguments");
                 process::exit(1);
             } else {
-                get_all(&conn).unwrap();
+                list(&conn).unwrap();
             }
         },
         _ => {
@@ -101,8 +101,8 @@ fn help(argument: Option<String>) {
     -h, --help              help message
     -s, --set               set password 
     -g, --get               get password
-    -r, --remove            remove password
-    -a, --all               get all apps names
+    -d, --delete            remove password
+    -l, --list               get all apps names
 
     Type for more information:
         --> scrappy --help [OPTION]
@@ -129,20 +129,20 @@ fn help(argument: Option<String>) {
     scrappy -s [NAME]"
 );
         },
-        "--remove" | "-r" => {
+        "--delete" | "-d" => {
             println!(
 "Usage: 
-    scrappy --remove 
+    scrappy --delete 
         or 
-    scrappy -r"
+    scrappy -d"
 );
         },
-        "--all" | "-a" => {
+        "--list" | "-l" => {
             println!(
 "Usage:
-    scrappy --all
+    scrappy --list
         or 
-    scrappy -a"
+    scrappy -l"
 );
         },
         _ => {
@@ -203,7 +203,7 @@ impl Config {
     }
 }
 
-fn get_all(conn: &Connection) -> Result<bool, rusqlite::Error>{
+fn list(conn: &Connection) -> Result<bool, rusqlite::Error>{
     let mut cursor = conn.prepare("SELECT id, name FROM passwords")?;
     let rows = cursor.query_map([], |row| {
         Ok((row.get(0)?, row.get(1)?))
@@ -245,7 +245,7 @@ fn get_all(conn: &Connection) -> Result<bool, rusqlite::Error>{
 }
 
 fn get(conn: Connection) -> Result<(), rusqlite::Error> {
-    if let Ok(true) = get_all(&conn) {
+    if let Ok(true) = list(&conn) {
         process::exit(0);
     };
 
@@ -375,8 +375,8 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
-fn remove(conn: Connection) -> Result<(), rusqlite::Error> {
-    if let Ok(true) = get_all(&conn) {
+fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
+    if let Ok(true) = list(&conn) {
         process::exit(0);
     };
 
