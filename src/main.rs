@@ -14,7 +14,7 @@ fn main() -> Result<()> {
         }
     };
 
-    let storage_dir_exists = Path::new(&user_home_dir.join(".scrappy_storage")).exists();
+    let storage_dir_exists = Path::new(&user_home_dir.join(".vold_storage")).exists();
     
     if !storage_dir_exists {
         if let Err(err) = fs::create_dir_all(user_home_dir.join(".scrappy_storage")) {
@@ -23,7 +23,7 @@ fn main() -> Result<()> {
         }
     }
 
-    let conn = Connection::open(user_home_dir.join(".scrappy_storage").join("scrappy.db"))?;
+    let conn = Connection::open(user_home_dir.join(".vold_storage").join("vold.db"))?;
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS passwords (
@@ -94,20 +94,20 @@ fn help(argument: Option<String>) {
     if argument == None {
             println!(
 "Usage:
-    scrappy [OPTION]
+    vold [OPTION]
         or
-    scrappy [OPTION] [ARGUMENT]
+    vold [OPTION] [ARGUMENT]
 
     -h, --help              help message
     -s, --set               set password 
     -g, --get               get password
     -d, --delete            remove password
-    -l, --list               get all apps names
+    -l, --list              get all apps names
 
     Type for more information:
-        --> scrappy --help [OPTION]
+        --> vold --help [OPTION]
                 or 
-            scrappy -h [OPTION]"
+            vold -h [OPTION]"
 );
             process::exit(0);
     }
@@ -116,41 +116,41 @@ fn help(argument: Option<String>) {
         "--get" | "-g" => {
             println!(
 "Usage:
-    scrappy --get
+    vold --get
         or 
-    scrappy -g"
+    vold -g"
 );
         },
         "--set" | "-s" => {
             println!(
 "Usage:
-    scrappy --set [NAME]
+    vold --set [NAME]
         or 
-    scrappy -s [NAME]"
+    vold -s [NAME]"
 );
         },
         "--delete" | "-d" => {
             println!(
 "Usage: 
-    scrappy --delete 
+    vold --delete 
         or 
-    scrappy -d"
+    vold -d"
 );
         },
         "--list" | "-l" => {
             println!(
 "Usage:
-    scrappy --list
+    vold --list
         or 
-    scrappy -l"
+    vold -l"
 );
         },
         _ => {
             println!(
 "Unknow argument! Try:
-    --> scrappy --help
+    --> vold --help
             or 
-        scrappy -h"
+        vold -h"
 );
         }
     }
