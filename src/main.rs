@@ -1,6 +1,7 @@
 use std::ops::Div;
 use std::env;
 use std::path::Path;
+use std::fs;
 use std::process;
 use rusqlite::{Connection, Result};
 
@@ -13,14 +14,13 @@ fn main() -> Result<()> {
         }
     };
 
-    let path_exists = Path::new(&user_home_dir.join(".scrappy_storage")).exists();
+    let storage_dir_exists = Path::new(&user_home_dir.join(".scrappy_storage")).exists();
     
-    if path_exists == false {
-        println!(
-"Oops! Looks like Scrappy can't find the storage directory. Try creating it using the command:
-    --> mkdir ~/.scrappy_storage 
-Or reinstall Scrappy by running the install.sh script");
-        process::exit(1);
+    if !storage_dir_exists {
+        if let Err(err) = fs::create_dir_all(user_home_dir.join(".scrappy_storage")) {
+            println!("Can't create directory: {}", err);
+            process::exit(1);
+        }
     }
 
     let conn = Connection::open(user_home_dir.join(".scrappy_storage").join("scrappy.db"))?;
@@ -49,10 +49,34 @@ Or reinstall Scrappy by running the install.sh script");
 fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
         "--help" | "-h" => help(config.input),
-        "--get" | "-g" => get(conn).unwrap(),
-        "--set" | "-s" => set(conn, config.input.unwrap()).unwrap(),
-        "--all" | "-a" if config.input == None => get_all(&conn).unwrap(),
-        _ => println!("Problem parsing arguments: Unknow arguments")
+        "--get" | "-g" => {
+            if config.input != None {
+                println!("Problem parsing arguments: Too many arguments");
+                process::exit(1);
+            } else {
+                get(conn).unwrap()
+            }
+        },
+        "--set" | "-s" => {
+            if config.input == None {
+                println!("Problem parsing argument: No arguments were given");
+                process::exit(1);
+            } else {
+                set(conn, config.input.unwrap()).unwrap();
+            }
+        },
+        "--all" | "-a" => {
+            if config.input != None {
+                println!("Problem parsing arguments: Too many arguments");
+                process::exit(1);
+            } else {
+                get_all(&conn).unwrap()
+            }
+        },
+        _ => {
+            println!("Problem parsing arguments: Unknow arguments");
+            process::exit(1);
+        }
     }
 
     process::exit(0);
