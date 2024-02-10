@@ -23,7 +23,7 @@ case $key in
         exit 0
         ;;
     install)
-        cargo build --release
+        cargo build --release --verbose
         cargo install --path $MYPATH
         ;;
     uninstall)
