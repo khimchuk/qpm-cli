@@ -28,6 +28,7 @@ case $key in
         ;;
     uninstall)
         rm -rf $HOME/.vold_storage
+        cargo clean
         cargo uninstall
         ;;
     *)
