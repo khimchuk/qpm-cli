@@ -14,16 +14,16 @@ fn main() -> Result<()> {
         }
     };
 
-    let storage_dir_exists = Path::new(&user_home_dir.join(".vold_storage")).exists();
+    let storage_dir_exists = Path::new(&user_home_dir.join(".qpass_storage")).exists();
     
     if !storage_dir_exists {
-        if let Err(err) = fs::create_dir_all(user_home_dir.join(".vold_storage")) {
+        if let Err(err) = fs::create_dir_all(user_home_dir.join(".qpass_storage")) {
             println!("Can't create directory: {}", err);
             process::exit(1);
         }
     }
 
-    let conn = Connection::open(user_home_dir.join(".vold_storage").join("vold.db"))?;
+    let conn = Connection::open(user_home_dir.join(".qpass_storage").join("qpass.db"))?;
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS passwords (
@@ -94,9 +94,9 @@ fn help(argument: Option<String>) {
     if argument == None {
             println!(
 "Usage:
-    vold [OPTION]
+    qpass [OPTION]
         or
-    vold [OPTION] [ARGUMENT]
+    qpass [OPTION] [ARGUMENT]
 
     -h, --help              help message
     -s, --set               set password 
@@ -105,9 +105,9 @@ fn help(argument: Option<String>) {
     -l, --list              get all apps names
 
     Type for more information:
-        --> vold --help [OPTION]
+        --> qpass --help [OPTION]
                 or 
-            vold -h [OPTION]"
+            qpass -h [OPTION]"
 );
             process::exit(0);
     }
@@ -116,41 +116,41 @@ fn help(argument: Option<String>) {
         "--get" | "-g" => {
             println!(
 "Usage:
-    vold --get
+    qpass --get
         or 
-    vold -g"
+    qpass -g"
 );
         },
         "--set" | "-s" => {
             println!(
 "Usage:
-    vold --set [NAME]
+    qpass --set [NAME]
         or 
-    vold -s [NAME]"
+    qpass -s [NAME]"
 );
         },
         "--delete" | "-d" => {
             println!(
 "Usage: 
-    vold --delete 
+    qpass --delete 
         or 
-    vold -d"
+    qpass -d"
 );
         },
         "--list" | "-l" => {
             println!(
 "Usage:
-    vold --list
+    qpass --list
         or 
-    vold -l"
+    qpass -l"
 );
         },
         _ => {
             println!(
 "Unknow argument! Try:
-    --> vold --help
+    --> qpass --help
             or 
-        vold -h"
+        qpass -h"
 );
         }
     }

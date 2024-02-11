@@ -6,7 +6,7 @@ if [ $# -eq 0 ]; then
     echo "Problem parsing argument: No argument found"
     echo "Try:"
     echo ""
-    echo "  --> vinst help"
+    echo "  --> quick help"
     echo ""
     exit 1
 fi
@@ -17,8 +17,8 @@ case $key in
     help)
         echo "Using:"
         echo ""
-        echo "  vinst install           install Vold"
-        echo "  vinst uninstall         uninstall Vold"
+        echo "  quick install           install qpass"
+        echo "  quick uninstall         uninstall qpass"
         echo ""
         exit 0
         ;;
@@ -27,7 +27,7 @@ case $key in
         cargo install --path $MYPATH
         ;;
     uninstall)
-        rm -rf $HOME/.vold_storage
+        rm -rf $HOME/.qpass_storage
         cargo clean
         cargo uninstall
         ;;
@@ -35,7 +35,7 @@ case $key in
         echo "Problem parsing argument: Unknow argument $1"
         echo "Try:"
         echo ""
-        echo "  --> vinst help"
+        echo "  --> quick help"
         echo ""
         exit 1
         ;;
