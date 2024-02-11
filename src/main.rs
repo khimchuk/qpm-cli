@@ -93,8 +93,8 @@ fn run(config: Config, conn: Connection) {
                 list(&conn).unwrap();
             }
         },
-        _ => {
-            println!("Parsing error: *** Unknown option.");
+        unknow => {
+            println!("Parsing error: *** Unknown option '{}'.", unknow);
             help(None);
             process::exit(1);
         }
