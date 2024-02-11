@@ -49,6 +49,7 @@ fn main() -> Result<()> {
 fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
         "--help" | "-h" => help(config.input),
+        "--version" | "-v" => version(),
         "--get" | "-g" => {
             if config.input != None {
                 println!("Problem parsing arguments: Too many arguments");
@@ -92,13 +93,15 @@ fn run(config: Config, conn: Connection) {
 
 fn help(argument: Option<String>) {
     if argument == None {
-            println!(
-"Usage:
+            println!("
+Usage:
     qpass [OPTION]
         or
     qpass [OPTION] [ARGUMENT]
 
     -h, --help              help message
+    -v, --version           qpass version
+
     -s, --set               set password 
     -g, --get               get password
     -d, --delete            remove password
@@ -107,7 +110,8 @@ fn help(argument: Option<String>) {
     Type for more information:
         --> qpass --help [OPTION]
                 or 
-            qpass -h [OPTION]"
+            qpass -h [OPTION]
+"
 );
             process::exit(0);
     }
@@ -399,4 +403,8 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
     
     println!("Success!");
     Ok(())
+}
+
+fn version() {
+    println!("{}", env!("CARGO_PKG_VERSION"));  
 }
