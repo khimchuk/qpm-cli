@@ -7,8 +7,8 @@ if [ $# -eq 0 ]; then
     echo "Using: quick [ARGUMENT]"
     echo ""
     echo "Options:"
-    echo "  install         install QPass"
-    echo "  uninstall       uninstall QPass"
+    echo "  install             install QPass."
+    echo "  uninstall           uninstall QPass."
     exit 1
 fi
 
@@ -19,8 +19,8 @@ case $key in
         echo "Using: quick [ARGUMENT]"
         echo ""
         echo "Options:"
-        echo "  install         install QPass"
-        echo "  uninstall       uninstall QPass"
+        echo "  install             install QPass."
+        echo "  uninstall           uninstall QPass."
        exit 0
         ;;
     install)

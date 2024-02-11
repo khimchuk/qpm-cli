@@ -110,13 +110,13 @@ fn help(argument: Option<String>) {
        qpass [OPTION] [ARGUMENT]
 
 Options:
-    -h, --help              help message
-    -v, --version           qpass version
+    -h, --help              help message.
+    -v, --version           QPass version.
 
-    -s, --set [NAME]        set password 
-    -g, --get               get password
-    -d, --delete            remove password
-    -l, --list              get all apps names
+    -s, --set [NAME]        set password. 
+    -g, --get               get password.
+    -d, --delete            remove password.
+    -l, --list              get all password names.
 
 Type for more information:
     qpass --help [OPTION]
