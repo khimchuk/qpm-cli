@@ -9,7 +9,7 @@ fn main() -> Result<()> {
     let user_home_dir = match home::home_dir() {
         Some(path) => path,
         None => {
-            println!("Can't open your home dir!");
+            println!("Opening error: *** Can't open your home dir.");
             process::exit(1);
         }
     };
@@ -18,7 +18,7 @@ fn main() -> Result<()> {
     
     if !storage_dir_exists {
         if let Err(err) = fs::create_dir_all(user_home_dir.join(".qpass_storage")) {
-            println!("Can't create directory: {}", err);
+            println!("Creation error: *** {}.", err);
             process::exit(1);
         }
     }
@@ -37,7 +37,8 @@ fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
 
     let config = Config::new(&args).unwrap_or_else(|error| {
-        println!("Problem parsing arguments: {}", error);
+        println!("Parsing error: *** {}.", error);
+        help(None);
         process::exit(1);
     });
 
@@ -49,10 +50,17 @@ fn main() -> Result<()> {
 fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
         "--help" | "-h" => help(config.input),
-        "--version" | "-v" => version(),
+        "--version" | "-v" => {
+            version();
+            if config.input != None {
+                println!();
+                help(None);
+            }
+        },
         "--get" | "-g" => {
             if config.input != None {
-                println!("Problem parsing arguments: Too many arguments");
+                println!("Parsing error: *** Too many arguments.");
+                help(std::option::Option::Some("--get".to_string()));
                 process::exit(1);
             } else {
                 get(conn).unwrap()
@@ -60,7 +68,8 @@ fn run(config: Config, conn: Connection) {
         },
         "--set" | "-s" => {
             if config.input == None {
-                println!("Problem parsing argument: No arguments were given");
+                println!("Parsin error: *** No arguments were passed.");
+                help(std::option::Option::Some("--set".to_string()));
                 process::exit(1);
             } else {
                 set(conn, config.input.unwrap()).unwrap();
@@ -68,7 +77,8 @@ fn run(config: Config, conn: Connection) {
         },
         "--delete" | "-d" => {
             if config.input != None {
-                println!("Problem parsing arguments: Too many arguments");
+                println!("Parsing error: *** Too many arguments.");
+                help(std::option::Option::Some("--delete".to_string()));
                 process::exit(1);
             } else {
                 delete(conn).unwrap()
@@ -76,14 +86,16 @@ fn run(config: Config, conn: Connection) {
         }
         "--list" | "-l" => {
             if config.input != None {
-                println!("Problem parsing arguments: Too many arguments");
+                println!("Parsing error: *** Too many arguments.");
+                help(std::option::Option::Some("--list".to_string()));
                 process::exit(1);
             } else {
                 list(&conn).unwrap();
             }
         },
         _ => {
-            println!("Problem parsing arguments: Unknow arguments");
+            println!("Parsing error: *** Unknown option.");
+            help(None);
             process::exit(1);
         }
     }
@@ -93,25 +105,24 @@ fn run(config: Config, conn: Connection) {
 
 fn help(argument: Option<String>) {
     if argument == None {
-            println!("
-Usage:
-    qpass [OPTION]
-        or
-    qpass [OPTION] [ARGUMENT]
+            println!(
+"Usage: qpass [OPTION]
+       qpass [OPTION] [ARGUMENT]
 
+Options:
     -h, --help              help message
     -v, --version           qpass version
 
-    -s, --set               set password 
+    -s, --set [NAME]        set password 
     -g, --get               get password
     -d, --delete            remove password
     -l, --list              get all apps names
 
-    Type for more information:
-        --> qpass --help [OPTION]
-                or 
-            qpass -h [OPTION]
-"
+Type for more information:
+    qpass --help [OPTION]
+    qpass -h [OPTION]
+
+Report bugs to <khimchuk.io@gmail.com>"
 );
             process::exit(0);
     }
@@ -119,43 +130,31 @@ Usage:
     match argument.unwrap().as_str() {
         "--get" | "-g" => {
             println!(
-"Usage:
-    qpass --get
-        or 
-    qpass -g"
+"Usage: qpass --get
+       qpass -g"
 );
         },
         "--set" | "-s" => {
             println!(
-"Usage:
-    qpass --set [NAME]
-        or 
-    qpass -s [NAME]"
+"Usage: qpass --set [NAME]
+       qpass -s [NAME]"
 );
         },
         "--delete" | "-d" => {
             println!(
-"Usage: 
-    qpass --delete 
-        or 
-    qpass -d"
+"Usage: qpass --delete  
+       qpass -d"
 );
         },
         "--list" | "-l" => {
             println!(
-"Usage:
-    qpass --list
-        or 
-    qpass -l"
+"Usage: qpass --list 
+       qpass -l"
 );
         },
         _ => {
-            println!(
-"Unknow argument! Try:
-    --> qpass --help
-            or 
-        qpass -h"
-);
+            println!("Input error: *** Unknow argument.");
+            help(None);
         }
     }
 }
@@ -190,19 +189,23 @@ struct Config {
 
 impl Config {
     fn new(args: &[String]) -> Result<Config, &str> {
-        if args.len() == 2 {
-            let operation = args[1].clone();
-
-            Ok(Config { operation, input: None })
-        } else if args.len() == 3 {
-            let operation = args[1].clone();
-            let input = Some(args[2].clone());
-
-            Ok(Config { operation, input })
-        } else if args.len() > 3 {
-            return Err("Too many arguments");
-        } else {
-            return Err("No arguments found");
+        match args.len() {
+            2 => {
+                let operation = args[1].clone();
+                Ok(Config { operation, input: None })
+            },
+            3 => {
+                let operation = args[1].clone();
+                let input = Some(args[2].clone());
+                
+                Ok(Config { operation, input })
+            },
+            4.. => {
+                Err("Too many arguments")
+            },
+            _ => {
+                Err("No options were passed")
+            }
         }
     }
 }
@@ -253,9 +256,9 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
         process::exit(0);
     };
 
-    let id = rpassword::prompt_password("Choose id: ").unwrap_or_else(|err| {
+    let id = rpassword::prompt_password("Choose ID: ").unwrap_or_else(|err| {
         println!();
-        println!("Input error: {}", err);
+        println!("Input error: *** {}.", err);
         process::exit(1);
     });
 
@@ -271,7 +274,7 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
     }
 
     if password.len() == 0 {
-        println!("A password with this ID does not exist!");
+        println!("Input error: *** A password with this ID does not exist.");
         process::exit(1);
     }
 
@@ -280,13 +283,13 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
            if line.chars().count() != 0 {
                line
            } else {
-               println!("Canceled");
+               println!("*** Canceled. ***");
                process::exit(1);
            }
        }
        Err(_) => {
            println!();
-           println!("Canceled");
+           println!("*** Canceled. ***");
            process::exit(1);
        }
     };
@@ -324,13 +327,13 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
             if line.chars().count() != 0 {
                 line
             } else {
-                println!("Canceled");
+                println!("*** Canceled. ***");
                 process::exit(1);
             }
         }
         Err(_) => {
             println!();
-            println!("Canceled");
+            println!("*** Canceled. ***");
             process::exit(1);
         }
     };
@@ -340,13 +343,13 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
             if line.chars().count() != 0 {
                 line
             } else {
-                println!("Canceled");
+                println!("*** Canceled. ***");
                 process::exit(1);
             }
         }
         Err(_) => {
             println!();
-            println!("Canceled");
+            println!("*** Canceled. ***");
             process::exit(1);
         }
     };
@@ -375,7 +378,8 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
     conn.execute("INSERT INTO passwords(name, password) VALUES(?1, ?2)",
         (name, new_password),
     )?;
-
+    
+    println!("*** Success. ***");
     Ok(())
 }
 
@@ -386,14 +390,14 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
 
     let id = rpassword::prompt_password("Choose id: ").unwrap_or_else(|err| {
         println!();
-        println!("Input error: {}", err);
+        println!("Input error: *** {}.", err);
         process::exit(1);
     });
 
     if let Ok(0) = conn.execute("DELETE FROM passwords WHERE id=?",
         [&id],
     ) {
-        println!("A password with this ID does not exist!");
+        println!("Input error: *** A password with this ID does not exist.");
         process::exit(1);
     };
 
@@ -401,10 +405,10 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
         [&id],
     )?;
     
-    println!("Success!");
+    println!("*** Success. ***");
     Ok(())
 }
 
 fn version() {
-    println!("{}", env!("CARGO_PKG_VERSION"));  
+    println!("Quick Password Manager {}", env!("CARGO_PKG_VERSION"));
 }
