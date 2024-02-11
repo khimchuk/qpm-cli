@@ -103,8 +103,8 @@ fn run(config: Config, conn: Connection) {
     process::exit(0);
 }
 
-fn help(argument: Option<String>) {
-    if argument == None {
+fn help(option: Option<String>) {
+    if option == None {
             println!(
 "Usage: qpass [OPTION]
        qpass [OPTION] [ARGUMENT]
@@ -127,7 +127,7 @@ Report bugs to <khimchuk.io@gmail.com>"
             process::exit(0);
     }
 
-    match argument.unwrap().as_str() {
+    match option.unwrap().as_str() {
         "--get" | "-g" => {
             println!(
 "Usage: qpass --get
@@ -153,7 +153,7 @@ Report bugs to <khimchuk.io@gmail.com>"
 );
         },
         _ => {
-            println!("Input error: *** Unknow argument.");
+            println!("Input error: *** Unknown option.");
             help(None);
         }
     }
@@ -388,7 +388,7 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
         process::exit(0);
     };
 
-    let id = rpassword::prompt_password("Choose id: ").unwrap_or_else(|err| {
+    let id = rpassword::prompt_password("Choose ID: ").unwrap_or_else(|err| {
         println!();
         println!("Input error: *** {}.", err);
         process::exit(1);
@@ -397,7 +397,7 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
     if let Ok(0) = conn.execute("DELETE FROM passwords WHERE id=?",
         [&id],
     ) {
-        println!("Input error: *** A password with this ID does not exist.");
+        println!("Input error: *** A password with this ID does not exists.");
         process::exit(1);
     };
 
