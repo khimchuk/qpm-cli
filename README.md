@@ -4,8 +4,8 @@
 # Installation
 ## Step 1.
 First of all, install the required dependencies in order to build qpm.
-| **Distribution** |           **Instructions**           |
-| ---------------- | ------------------------------------:|
+|**Distribution**  |**Instructions**                      |
+| ---------------- |:------------------------------------:|
 | Debian           | `apt install libsqlite3-dev gcc`     |
 | Ubuntu           | `apt install libsqlite3-dev gcc`     |
 | Arch             | `pacman -S sqlite gcc`               |
