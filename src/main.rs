@@ -14,16 +14,16 @@ fn main() -> Result<()> {
         }
     };
 
-    let storage_dir_exists = Path::new(&user_home_dir.join(".qpass_storage")).exists();
+    let storage_dir_exists = Path::new(&user_home_dir.join(".qpm_storage")).exists();
     
     if !storage_dir_exists {
-        if let Err(err) = fs::create_dir_all(user_home_dir.join(".qpass_storage")) {
+        if let Err(err) = fs::create_dir_all(user_home_dir.join(".qpm_storage")) {
             println!("Creation error: *** {}.", err);
             process::exit(1);
         }
     }
 
-    let conn = Connection::open(user_home_dir.join(".qpass_storage").join("qpass.db"))?;
+    let conn = Connection::open(user_home_dir.join(".qpm_storage").join("qpm.db"))?;
 
     conn.execute(
         "CREATE TABLE IF NOT EXISTS passwords (
@@ -106,12 +106,12 @@ fn run(config: Config, conn: Connection) {
 fn help(option: Option<String>) {
     if option == None {
             println!(
-"Usage: qpass [OPTION]
-       qpass [OPTION] [ARGUMENT]
+"Usage: qpm [OPTION]
+       qpm [OPTION] [ARGUMENT]
 
 Options:
     -h, --help              help message.
-    -v, --version           QPass version.
+    -v, --version           qpm version.
 
     -s, --set [NAME]        set password. 
     -g, --get               get password.
@@ -119,8 +119,8 @@ Options:
     -l, --list              get all password names.
 
 Type for more information:
-    qpass --help [OPTION]
-    qpass -h [OPTION]
+    qpm --help [OPTION]
+    qpm -h [OPTION]
 
 Report bugs to <khimchuk.io@gmail.com>"
 );
@@ -130,26 +130,26 @@ Report bugs to <khimchuk.io@gmail.com>"
     match option.unwrap().as_str() {
         "--get" | "-g" => {
             println!(
-"Usage: qpass --get
-       qpass -g"
+"Usage: qpm --get
+       qpm -g"
 );
         },
         "--set" | "-s" => {
             println!(
-"Usage: qpass --set [NAME]
-       qpass -s [NAME]"
+"Usage: qpm --set [NAME]
+       qpm -s [NAME]"
 );
         },
         "--delete" | "-d" => {
             println!(
-"Usage: qpass --delete  
-       qpass -d"
+"Usage: qpm --delete  
+       qpm -d"
 );
         },
         "--list" | "-l" => {
             println!(
-"Usage: qpass --list 
-       qpass -l"
+"Usage: qpm --list 
+       qpm -l"
 );
         },
         _ => {
@@ -283,13 +283,13 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
            if line.chars().count() != 0 {
                line
            } else {
-               println!("*** Canceled. ***");
+               println!("qpm session: *** Canceled.");
                process::exit(1);
            }
        }
        Err(_) => {
            println!();
-           println!("*** Canceled. ***");
+           println!("qpm session: *** Canceled.");
            process::exit(1);
        }
     };
@@ -327,13 +327,13 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
             if line.chars().count() != 0 {
                 line
             } else {
-                println!("*** Canceled. ***");
+                println!("qpm session: *** Canceled.");
                 process::exit(1);
             }
         }
         Err(_) => {
             println!();
-            println!("*** Canceled. ***");
+            println!("qpm session: *** Canceled.");
             process::exit(1);
         }
     };
@@ -343,13 +343,13 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
             if line.chars().count() != 0 {
                 line
             } else {
-                println!("*** Canceled. ***");
+                println!("qpm session: *** Canceled.");
                 process::exit(1);
             }
         }
         Err(_) => {
             println!();
-            println!("*** Canceled. ***");
+            println!("qpm session: *** Canceled.");
             process::exit(1);
         }
     };
@@ -379,7 +379,7 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
         (name, new_password),
     )?;
     
-    println!("*** Success. ***");
+    println!("qpm session: *** Success.");
     Ok(())
 }
 
@@ -405,7 +405,7 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
         [&id],
     )?;
     
-    println!("*** Success. ***");
+    println!("qpm session: *** Success.");
     Ok(())
 }
 

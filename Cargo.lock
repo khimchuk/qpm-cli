@@ -110,7 +110,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "qpass"
+name = "qpm"
 version = "0.1.0"
 dependencies = [
  "home",

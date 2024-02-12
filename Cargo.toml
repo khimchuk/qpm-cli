@@ -1,11 +1,11 @@
 [package]
-name = "qpass"
+name = "qpm"
 version = "0.1.0"
 edition = "2021"
 description = "Quick command line password manager written in Rust."
 authors = ["Andrew <khimchuk.io@gmail.com>"]
 license = "MIT"
-repository = "https://github.com/khimchuk/qpass-cli"
+repository = "https://github.com/khimchuk/qpm-cli"
 readme = "README.md"
 
 [dependencies]
