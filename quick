@@ -33,7 +33,7 @@ case $key in
         cargo uninstall
         ;;
     *)
-        echo "Parsing error: *** Unknow option '$1'."
+        echo "Parsing error: *** Unknown option '$1'."
         echo "Using: quick [ARGUMENT]"
         echo ""
         echo "Options:"
