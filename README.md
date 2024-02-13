@@ -2,6 +2,7 @@
 **Quick Password Manager** is a password manager written in Rust. It uses encryption, which helps you store passwords securely.
 
 
+
 # Installation
 ### Step 1.
 First of all, install the required dependencies in order to build qpm.
@@ -39,6 +40,7 @@ Quick Password Manager 0.1.0
 ```
 
 
+
 # How to use?
 When adding a password, you need to enter your secret. A secret is a universal key to your passwords. It can be unique for everyone, you can also come up with your own secret for each password or group of passwords, you are not limited in this way. The main advantage is that **qpm** does not report whether the password was decrypted correctly, so you need to remember the secret, otherwise if you enter the wrong secret you will get an incorrectly decrypted password.
 
@@ -70,3 +72,8 @@ $ qpm --help -l
 Usage: qpm --list
        qpm -l
 ```
+
+
+
+# License
+Quick Password Manager is released under the MIT License. You can find a copy of the license text here: [LICENSE](../blob/master/LICENSE)
