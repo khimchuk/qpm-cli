@@ -76,4 +76,4 @@ Usage: qpm --list
 
 
 # License
-Quick Password Manager is released under the MIT License. You can find a copy of the license text here: [LICENSE](../blob/master/LICENSE)
+Quick Password Manager is released under the MIT License. You can find a copy of the license text here: [LICENSE](../master/LICENSE)
