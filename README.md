@@ -15,7 +15,7 @@ First of all, install the required dependencies in order to build qpm.
 | Kali             | `apt install libsqlite3-dev gcc`     |
 | Fedora           | `dnf install sqlite-devel gcc`       |
 
-You will also need to install Rust using rustup(Recommended). Run the following in your terminal, then follow the onscreen instructions:
+You will also need to install Rust using rustup(recommended). Run the following in your terminal, then follow the onscreen instructions:
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
