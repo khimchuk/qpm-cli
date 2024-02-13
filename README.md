@@ -6,7 +6,7 @@
 ### Step 1.
 First of all, install the required dependencies in order to build qpm.
 |**Distribution**  |**Instructions**                      |
-| ---------------- |:------------------------------------:|
+| ---------------- |--------------------------------------|
 | Debian           | `apt install libsqlite3-dev gcc`     |
 | Ubuntu           | `apt install libsqlite3-dev gcc`     |
 | Arch             | `pacman -S sqlite gcc`               |
@@ -16,7 +16,7 @@ First of all, install the required dependencies in order to build qpm.
 | Fedora           | `dnf install sqlite-devel gcc`       |
 
 You will also need to install Rust using rustup(Recommended). Run the following in your terminal, then follow the onscreen instructions:
-```shell
+```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
@@ -28,12 +28,12 @@ git clone https://github.com/khimchuk/qpm-cli.git
 
 ### Step 3. 
 Install qpm using quick. Go to the qpm directory (qpm-cli by default) and run the following command:
-```shell
+```
 ./quick install
 ```
 
 Verify that qpm was successfully installed:
-```shell
+```
 $ qpm --version
 Quick Password Manager 0.1.0
 ```
@@ -43,7 +43,7 @@ Quick Password Manager 0.1.0
 When adding a password, you need to enter your secret. A secret is a universal key to your passwords. It can be unique for everyone, but you can also come up with a new secret for each password. The main advantage is that **qpm** does not report whether the password was decrypted correctly, so you need to remember the secret, otherwise if you enter the wrong secret you will get an incorrectly decrypted password.
 
 You can learn about all the functions of qpm by running the command `qpm --help` in your terminal.
-```shell
+```
 $ qpm --help
 Usage: qpm [OPTION]
        qpm [OPTION] [ARGUMENT]
@@ -65,7 +65,7 @@ Report bugs to <khimchuk.io@gmail.com>
 ```
 
 You can also find out how to use a specific function by running the command `qpm --help [OPTION]`. For example:
-```shell
+```
 $ qpm --help -l
 Usage: qpm --list
        qpm -l
