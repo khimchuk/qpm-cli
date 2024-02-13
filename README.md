@@ -8,7 +8,7 @@
 First of all, install the required dependencies in order to build qpm.
 |**Distribution**       |**Instructions**                      |
 | --------------------- |--------------------------------------|
-| Debianm Ubuntu, Kali  | `apt install libsqlite3-dev gcc`     |
+| Debian, Ubuntu, Kali  | `apt install libsqlite3-dev gcc`     |
 | Arch                  | `pacman -S sqlite gcc`               |
 | Void                  | `xbps-install -S sqlite-devel gcc`   |
 | Gentoo                | `emerge dev-db/sqlite sys-devel/gcc` |
