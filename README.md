@@ -6,15 +6,13 @@
 # Installation
 ### Step 1.
 First of all, install the required dependencies in order to build qpm.
-|**Distribution**  |**Instructions**                      |
-| ---------------- |--------------------------------------|
-| Debian           | `apt install libsqlite3-dev gcc`     |
-| Ubuntu           | `apt install libsqlite3-dev gcc`     |
-| Arch             | `pacman -S sqlite gcc`               |
-| Void             | `xbps-install -S sqlite-devel gcc`   |
-| Gentoo           | `emerge dev-db/sqlite sys-devel/gcc` |
-| Kali             | `apt install libsqlite3-dev gcc`     |
-| Fedora           | `dnf install sqlite-devel gcc`       |
+|**Distribution**       |**Instructions**                      |
+| --------------------- |--------------------------------------|
+| Debianm Ubuntu, Kali  | `apt install libsqlite3-dev gcc`     |
+| Arch                  | `pacman -S sqlite gcc`               |
+| Void                  | `xbps-install -S sqlite-devel gcc`   |
+| Gentoo                | `emerge dev-db/sqlite sys-devel/gcc` |
+| Fedora                | `dnf install sqlite-devel gcc`       |
 
 You will also need to install Rust using rustup(recommended). Run the following in your terminal, then follow the onscreen instructions:
 ```
