@@ -40,7 +40,7 @@ Quick Password Manager 0.1.0
 
 
 # How to use?
-When adding a password, you need to enter your secret. A secret is a universal key to your passwords. It can be unique for everyone, but you can also come up with a new secret for each password. The main advantage is that **qpm** does not report whether the password was decrypted correctly, so you need to remember the secret, otherwise if you enter the wrong secret you will get an incorrectly decrypted password.
+When adding a password, you need to enter your secret. A secret is a universal key to your passwords. It can be unique for everyone, you can also come up with your own secret for each password or group of passwords, you are not limited in this way. The main advantage is that **qpm** does not report whether the password was decrypted correctly, so you need to remember the secret, otherwise if you enter the wrong secret you will get an incorrectly decrypted password.
 
 You can learn about all the functions of qpm by running the command `qpm --help` in your terminal.
 ```
