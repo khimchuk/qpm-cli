@@ -35,7 +35,7 @@ Clone the repository:
 git clone https://github.com/khimchuk/qpm-cli.git
 ```
 
-#### Step 3. 
+#### Step 2. 
 Install qpm using quick. Go to the qpm directory (qpm-cli by default) and run the following command:
 ```
 ./quick install
