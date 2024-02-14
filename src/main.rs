@@ -10,7 +10,7 @@ fn main() -> Result<()> {
     let user_home_dir = match home::home_dir() {
         Some(path) => path,
         None => {
-            println!("Opening error: *** Can't open your home dir.");
+            println!("error: *** Can't open your home dir.");
             process::exit(1);
         }
     };
@@ -19,7 +19,7 @@ fn main() -> Result<()> {
     
     if !storage_dir_exists {
         if let Err(err) = fs::create_dir_all(user_home_dir.join(".qpm_storage")) {
-            println!("Creation error: *** {}.", err);
+            println!("error: *** {}.", err);
             process::exit(1);
         }
     }
@@ -38,7 +38,7 @@ fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
 
     let config = Config::new(&args).unwrap_or_else(|error| {
-        println!("Parsing error: *** {}.", error);
+        println!("error: *** {}.", error);
         help(None);
         process::exit(1);
     });
@@ -60,7 +60,7 @@ fn run(config: Config, conn: Connection) {
         },
         "--get" | "-g" => {
             if config.input != None {
-                println!("Parsing error: *** Too many arguments.");
+                println!("error: *** Too many arguments.");
                 help(std::option::Option::Some("--get".to_string()));
                 process::exit(1);
             } else {
@@ -69,7 +69,7 @@ fn run(config: Config, conn: Connection) {
         },
         "--set" | "-s" => {
             if config.input == None {
-                println!("Parsin error: *** No arguments were passed.");
+                println!("error: *** No arguments were passed.");
                 help(std::option::Option::Some("--set".to_string()));
                 process::exit(1);
             } else {
@@ -78,7 +78,7 @@ fn run(config: Config, conn: Connection) {
         },
         "--delete" | "-d" => {
             if config.input != None {
-                println!("Parsing error: *** Too many arguments.");
+                println!("error: *** Too many arguments.");
                 help(std::option::Option::Some("--delete".to_string()));
                 process::exit(1);
             } else {
@@ -87,7 +87,7 @@ fn run(config: Config, conn: Connection) {
         },
         "--rename" | "-r" => {
             if config.input != None {
-                println!("Parsing error: *** Too many arguments.");
+                println!("error: *** Too many arguments.");
                 help(std::option::Option::Some("--rename".to_string()));
                 process::exit(1);
             } else {
@@ -96,7 +96,7 @@ fn run(config: Config, conn: Connection) {
         }
         "--list" | "-l" => {
             if config.input != None {
-                println!("Parsing error: *** Too many arguments.");
+                println!("error: *** Too many arguments.");
                 help(std::option::Option::Some("--list".to_string()));
                 process::exit(1);
             } else {
@@ -104,7 +104,7 @@ fn run(config: Config, conn: Connection) {
             }
         },
         unknow => {
-            println!("Parsing error: *** Unknown option '{}'.", unknow);
+            println!("error: *** Unknown option '{}'.", unknow);
             help(None);
             process::exit(1);
         }
@@ -170,7 +170,7 @@ Report bugs to <khimchuk.io@gmail.com>"
 );
         },
         _ => {
-            println!("Input error: *** Unknown option.");
+            println!("error: *** Unknown option.");
             help(None);
         }
     }
@@ -301,7 +301,7 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
     }
 
     if password.len() == 0 {
-        println!("Input error: *** A password with this ID does not exist.");
+        println!("error: *** A password with this ID does not exist.");
         process::exit(1);
     }
 
@@ -434,7 +434,7 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
     if let Ok(0) = conn.execute("DELETE FROM passwords WHERE id=?",
         [&id],
     ) {
-        println!("Input error: *** A password with this ID does not exists.");
+        println!("error: *** A password with this ID does not exists.");
         process::exit(1);
     };
 
@@ -488,7 +488,7 @@ fn rename_password(conn: Connection) {
     if let Ok(0) = conn.execute("UPDATE passwords SET name = ?1 WHERE id = ?2",
         (new_name, &id),
     ) {
-        println!("Input error: *** A password with this ID does not exists.");
+        println!("error: *** A password with this ID does not exists.");
         process::exit(1);
     };
 
