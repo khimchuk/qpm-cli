@@ -4,7 +4,6 @@
 
 
 # Installation
-### Step 1.
 First of all, install the required dependencies in order to build qpm.
 |**Distribution**       |**Instructions**                      |
 | --------------------- |--------------------------------------|
@@ -19,17 +18,30 @@ You will also need to install Rust using rustup(recommended). Run the following 
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-### Step 2. 
+Next, you can choose two installation paths: through the cargo package manager or compile it yourself from sources
+
+
+### Install via cargo
+Run the following command in your terminal:
+```
+cargo install qpm --locked
+```
+
+
+### Install from sources
+#### Step 1. 
 Clone the repository:
 ```shell
 git clone https://github.com/khimchuk/qpm-cli.git
 ```
 
-### Step 3. 
+#### Step 3. 
 Install qpm using quick. Go to the qpm directory (qpm-cli by default) and run the following command:
 ```
 ./quick install
 ```
+
+
 
 Verify that qpm was successfully installed:
 ```
