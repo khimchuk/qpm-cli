@@ -1,5 +1,6 @@
 use std::ops::Div;
 use std::env;
+use std::io::{self, Write};
 use std::path::Path;
 use std::fs;
 use std::process;
@@ -81,7 +82,16 @@ fn run(config: Config, conn: Connection) {
                 help(std::option::Option::Some("--delete".to_string()));
                 process::exit(1);
             } else {
-                delete(conn).unwrap()
+                delete(conn).unwrap();
+            }
+        },
+        "--rename" | "-r" => {
+            if config.input != None {
+                println!("Parsing error: *** Too many arguments.");
+                help(std::option::Option::Some("--rename".to_string()));
+                process::exit(1);
+            } else {
+                rename_password(conn);
             }
         }
         "--list" | "-l" => {
@@ -116,6 +126,7 @@ Options:
     -s, --set [NAME]        set password. 
     -g, --get               get password.
     -d, --delete            remove password.
+    -r, --rename            rename password.
     -l, --list              get all password names.
 
 Type for more information:
@@ -144,6 +155,12 @@ Report bugs to <khimchuk.io@gmail.com>"
             println!(
 "Usage: qpm --delete  
        qpm -d"
+);
+        },
+        "--rename" | "-r" => {
+            println!(
+"Usage: qpm --rename
+       qpm -r"
 );
         },
         "--list" | "-l" => {
@@ -256,11 +273,21 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
         process::exit(0);
     };
 
-    let id = rpassword::prompt_password("Choose ID: ").unwrap_or_else(|err| {
-        println!();
-        println!("Input error: *** {}.", err);
-        process::exit(1);
-    });
+    let id = match rpassword::prompt_password("Choose ID: ") {
+        Ok(line) => {
+            if line.chars().count() != 0 {
+                line
+            } else {
+                println!("qpm: *** Canceled.");
+                process::exit(1);
+            }
+        }
+        Err(_) => {
+            println!();
+            println!("qpm: *** Canceled.");
+            process::exit(1);
+        }
+    };
 
     let mut cursor = conn.prepare("SELECT password FROM passwords WHERE id=?")?;
     let rows = cursor.query_map([id], |row| {
@@ -283,13 +310,13 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
            if line.chars().count() != 0 {
                line
            } else {
-               println!("qpm session: *** Canceled.");
+               println!("qpm: *** Canceled.");
                process::exit(1);
            }
        }
        Err(_) => {
            println!();
-           println!("qpm session: *** Canceled.");
+           println!("qpm: *** Canceled.");
            process::exit(1);
        }
     };
@@ -327,13 +354,13 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
             if line.chars().count() != 0 {
                 line
             } else {
-                println!("qpm session: *** Canceled.");
+                println!("qpm: *** Canceled.");
                 process::exit(1);
             }
         }
         Err(_) => {
             println!();
-            println!("qpm session: *** Canceled.");
+            println!("qpm: *** Canceled.");
             process::exit(1);
         }
     };
@@ -343,13 +370,13 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
             if line.chars().count() != 0 {
                 line
             } else {
-                println!("qpm session: *** Canceled.");
+                println!("qpm: *** Canceled.");
                 process::exit(1);
             }
         }
         Err(_) => {
             println!();
-            println!("qpm session: *** Canceled.");
+            println!("qpm: *** Canceled.");
             process::exit(1);
         }
     };
@@ -379,7 +406,7 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
         (name, new_password),
     )?;
     
-    println!("qpm session: *** Success.");
+    println!("qpm: *** Success.");
     Ok(())
 }
 
@@ -388,11 +415,21 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
         process::exit(0);
     };
 
-    let id = rpassword::prompt_password("Choose ID: ").unwrap_or_else(|err| {
-        println!();
-        println!("Input error: *** {}.", err);
-        process::exit(1);
-    });
+    let id = match rpassword::prompt_password("Choose ID: ") {
+        Ok(line) => {
+            if line.chars().count() != 0 {
+                line
+            } else {
+                println!("qpm: *** Canceled.");
+                process::exit(1);
+            }
+        }
+        Err(_) => {
+            println!();
+            println!("qpm: *** Canceled.");
+            process::exit(1);
+        }
+    };
 
     if let Ok(0) = conn.execute("DELETE FROM passwords WHERE id=?",
         [&id],
@@ -405,10 +442,55 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
         [&id],
     )?;
     
-    println!("qpm session: *** Success.");
+    println!("qpm: *** Success.");
+
     Ok(())
 }
 
 fn version() {
     println!("Quick Password Manager {}", env!("CARGO_PKG_VERSION"));
+}
+
+fn rename_password(conn: Connection) {
+    if let Ok(true) = list(&conn) {
+        process::exit(0);
+    }
+
+    let id = match rpassword::prompt_password("Choose ID: ") {
+        Ok(line) => {
+            if line.chars().count() != 0 {
+                line
+            } else {
+                println!("qpm: *** Canceled.");
+                process::exit(1);
+            }
+        }
+        Err(_) => {
+            println!();
+            println!("qpm: *** Canceled.");
+            process::exit(1);
+        }
+    };
+
+    print!("Input new name: ");
+    io::stdout().flush().unwrap();
+
+    let mut new_name = String::new();
+    io::stdin().read_line(&mut new_name).expect("qpm: *** Canceled.");
+
+    new_name = new_name.trim().to_string();
+
+    if new_name.chars().count() == 0 {
+        println!("qpm: *** Canceled.");
+        process::exit(1);
+    }
+
+    if let Ok(0) = conn.execute("UPDATE passwords SET name = ?1 WHERE id = ?2",
+        (new_name, &id),
+    ) {
+        println!("Input error: *** A password with this ID does not exists.");
+        process::exit(1);
+    };
+
+    println!("qpm: *** Success.");
 }

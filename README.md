@@ -55,6 +55,7 @@ Options:
     -s, --set [NAME]        set password.
     -g, --get               get password.
     -d, --delete            remove password.
+    -r, --rename            rename password.
     -l, --list              get all password names.
 
 Type for more information:
