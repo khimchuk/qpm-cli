@@ -9,6 +9,7 @@ repository = "https://github.com/khimchuk/qpm-cli"
 readme = "README.md"
 
 [dependencies]
+clap = { version = "4.5.1", features = ["derive"] }
 rusqlite = "0.30.0"
 home = "0.5.9"
 rpassword = "7.3.1"
