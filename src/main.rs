@@ -52,7 +52,15 @@ println!("error: *** Can't open your home dir.");
 
 fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
-        "--help" | "-h" => help(),
+        "--help" | "-h" => {
+            if config.input != None {
+                println!("error: *** Too many arguments.");
+                help();
+                process::exit(1);
+            } else {
+                help();
+            }
+        }
         "--version" | "-V" => {
             version();
             if config.input != None {
@@ -60,7 +68,15 @@ fn run(config: Config, conn: Connection) {
                 help();
             }
         },
-        "help" => usage(config.input),
+        "help" => {
+             if config.input == None {
+                println!("error: *** No arguments were passed.");
+                help();
+                process::exit(1);
+            } else {
+                usage(config.input);
+            }           
+        },
         "get" | "g" => {
             if config.input != None {
                 println!("error: *** Too many arguments.");
@@ -132,11 +148,8 @@ Options:
      r, rename              rename password.
      l, list                get all password names.
      
-     help [OPTION]          find out how the function works.
-
 Type for more information:
-    qpm --help [OPTION]
-    qpm -h [OPTION]
+    qpm help [OPTION]
 
 Report bugs to <khimchuk.io@gmail.com>"
     );

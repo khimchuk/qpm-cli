@@ -62,26 +62,25 @@ Usage: qpm [OPTION]
 
 Options:
     -h, --help              help message.
-    -v, --version           qpm version.
+    -V, --version           qpm version.
 
-    -s, --set [NAME]        set password.
-    -g, --get               get password.
-    -d, --delete            remove password.
-    -r, --rename            rename password.
-    -l, --list              get all password names.
-
+     s, set [NAME]          set password. 
+     g, get                 get password.
+     d, delete              remove password.
+     r, rename              rename password.
+     l, list                get all password names.
+     
 Type for more information:
-    qpm --help [OPTION]
-    qpm -h [OPTION]
+    qpm help [OPTION]
 
 Report bugs to <khimchuk.io@gmail.com>
 ```
 
-You can also find out how to use a specific function by running the command `qpm --help [OPTION]`. For example:
+You can also find out how to use a specific function by running the command `qpm help [OPTION]`. For example:
 ```
-$ qpm --help -l
-Usage: qpm --list
-       qpm -l
+$ qpm help l
+Usage: qpm list
+       qpm l
 ```
 
 
