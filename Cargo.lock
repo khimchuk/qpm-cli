@@ -111,7 +111,7 @@ dependencies = [
 
 [[package]]
 name = "qpm"
-version = "0.1.3"
+version = "0.1.5"
 dependencies = [
  "home",
  "rpassword",
