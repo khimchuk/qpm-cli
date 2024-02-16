@@ -46,7 +46,7 @@ Install qpm using quick. Go to the qpm directory (qpm-cli by default) and run th
 Verify that qpm was successfully installed:
 ```
 $ qpm --version
-Quick Password Manager 0.1.3
+Quick Password Manager 0.1.5
 ```
 
 
