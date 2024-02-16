@@ -6,6 +6,7 @@ use std::fs;
 use std::process;
 use rusqlite::{Connection, Result};
 
+
 fn main() -> Result<()> {
     let user_home_dir = match home::home_dir() {
         Some(path) => path,
@@ -39,7 +40,7 @@ println!("error: *** Can't open your home dir.");
 
     let config = Config::new(&args).unwrap_or_else(|error| {
         println!("error: *** {}.", error);
-        help(None);
+        help();
         process::exit(1);
     });
 
@@ -48,56 +49,58 @@ println!("error: *** Can't open your home dir.");
     Ok(())
 }
 
+
 fn run(config: Config, conn: Connection) {
     match config.operation.as_str() {
-        "--help" | "-h" => help(config.input),
-        "--version" | "-v" => {
+        "--help" | "-h" => help(),
+        "--version" | "-V" => {
             version();
             if config.input != None {
                 println!();
-                help(None);
+                help();
             }
         },
-        "--get" | "-g" => {
+        "help" => usage(config.input),
+        "get" | "g" => {
             if config.input != None {
                 println!("error: *** Too many arguments.");
-                help(std::option::Option::Some("--get".to_string()));
+                usage(std::option::Option::Some("get".to_string()));
                 process::exit(1);
             } else {
                 get(conn).unwrap()
             }
         },
-        "--set" | "-s" => {
+        "set" | "s" => {
             if config.input == None {
                 println!("error: *** No arguments were passed.");
-                help(std::option::Option::Some("--set".to_string()));
+                usage(std::option::Option::Some("set".to_string()));
                 process::exit(1);
             } else {
                 set(conn, config.input.unwrap()).unwrap();
             }
         },
-        "--delete" | "-d" => {
+        "delete" | "d" => {
             if config.input != None {
                 println!("error: *** Too many arguments.");
-                help(std::option::Option::Some("--delete".to_string()));
+                usage(std::option::Option::Some("delete".to_string()));
                 process::exit(1);
             } else {
                 delete(conn).unwrap();
             }
         },
-        "--rename" | "-r" => {
+        "rename" | "r" => {
             if config.input != None {
                 println!("error: *** Too many arguments.");
-                help(std::option::Option::Some("--rename".to_string()));
+                usage(std::option::Option::Some("rename".to_string()));
                 process::exit(1);
             } else {
                 rename_password(conn);
             }
         }
-        "--list" | "-l" => {
+        "list" | "l" => {
             if config.input != None {
                 println!("error: *** Too many arguments.");
-                help(std::option::Option::Some("--list".to_string()));
+                usage(std::option::Option::Some("list".to_string()));
                 process::exit(1);
             } else {
                 list(&conn).unwrap();
@@ -105,7 +108,7 @@ fn run(config: Config, conn: Connection) {
         },
         unknow => {
             println!("error: *** Unknown option '{}'.", unknow);
-            help(None);
+            help();
             process::exit(1);
         }
     }
@@ -113,73 +116,78 @@ fn run(config: Config, conn: Connection) {
     process::exit(0);
 }
 
-fn help(option: Option<String>) {
-    if option == None {
-            println!(
+
+fn help() {
+    println!(
 "Usage: qpm [OPTION]
        qpm [OPTION] [ARGUMENT]
 
 Options:
     -h, --help              help message.
-    -v, --version           qpm version.
+    -V, --version           qpm version.
 
-    -s, --set [NAME]        set password. 
-    -g, --get               get password.
-    -d, --delete            remove password.
-    -r, --rename            rename password.
-    -l, --list              get all password names.
+     s, set [NAME]          set password. 
+     g, get                 get password.
+     d, delete              remove password.
+     r, rename              rename password.
+     l, list                get all password names.
+     
+     help [OPTION]          find out how the function works.
 
 Type for more information:
     qpm --help [OPTION]
     qpm -h [OPTION]
 
 Report bugs to <khimchuk.io@gmail.com>"
-);
-            process::exit(0);
-    }
+    );
+}
 
+
+fn usage(option: Option<String>) {
     match option.unwrap().as_str() {
-        "--get" | "-g" => {
+        "get" | "g" => {
             println!(
-"Usage: qpm --get
-       qpm -g"
+"Usage: qpm get
+       qpm g"
 );
         },
-        "--set" | "-s" => {
+        "set" | "s" => {
             println!(
-"Usage: qpm --set [NAME]
-       qpm -s [NAME]"
+"Usage: qpm set [NAME]
+       qpm s [NAME]"
 );
         },
-        "--delete" | "-d" => {
+        "delete" | "d" => {
             println!(
-"Usage: qpm --delete  
-       qpm -d"
+"Usage: qpm delete  
+       qpm d"
 );
         },
-        "--rename" | "-r" => {
+        "rename" | "r" => {
             println!(
-"Usage: qpm --rename
-       qpm -r"
+"Usage: qpm rename
+       qpm r"
 );
         },
-        "--list" | "-l" => {
+        "list" | "l" => {
             println!(
-"Usage: qpm --list 
-       qpm -l"
+"Usage: qpm list 
+       qpm l"
 );
         },
         _ => {
             println!("error: *** Unknown option.");
-            help(None);
+            help();
         }
     }
 }
+
 
 struct Config {
     operation: String,
     input: Option<String>
 }
+
 
 impl Config {
     fn new(args: &[String]) -> Result<Config, &str> {
@@ -204,6 +212,7 @@ impl Config {
     }
 }
 
+
 fn encryption(password: String) -> String {
     let mut result: String = String::new();
 
@@ -227,6 +236,7 @@ fn decryption(to_encrypt: String) -> String {
 
     return result;
 }
+
 
 fn list(conn: &Connection) -> Result<bool, rusqlite::Error>{
     let mut cursor = conn.prepare("SELECT id, name FROM passwords")?;
@@ -268,6 +278,7 @@ fn list(conn: &Connection) -> Result<bool, rusqlite::Error>{
 
     Ok(empty)
 }
+
 
 fn get(conn: Connection) -> Result<(), rusqlite::Error> {
     if let Ok(true) = list(&conn) {
@@ -349,6 +360,7 @@ fn get(conn: Connection) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
+
 fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
     let secret = match rpassword::prompt_password("Secret: ") {
         Ok(line) => {
@@ -411,6 +423,7 @@ fn set(conn: Connection, name: String) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
+
 fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
     if let Ok(true) = list(&conn) {
         process::exit(0);
@@ -448,9 +461,11 @@ fn delete(conn: Connection) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
+
 fn version() {
     println!("Quick Password Manager {}", env!("CARGO_PKG_VERSION"));
 }
+
 
 fn rename_password(conn: Connection) {
     if let Ok(true) = list(&conn) {
@@ -495,3 +510,4 @@ fn rename_password(conn: Connection) {
 
     println!("qpm: *** Success.");
 }
+
